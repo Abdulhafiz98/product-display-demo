@@ -11,9 +11,6 @@ CREATE TABLE product (
 CREATE TABLE variant (
     id                BIGINT PRIMARY KEY,
     title             VARCHAR(200),
-    option1           VARCHAR(200),
-    option2           VARCHAR(200),
-    option3           VARCHAR(200),
     taxable           BOOLEAN,
     price             VARCHAR(50),
     grams             INT,
