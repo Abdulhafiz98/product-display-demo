@@ -88,7 +88,7 @@ class ProductService(
                 productId,
                 title = variant.title,
                 taxable = variant.taxable,
-                price = variant.price,
+                price = "${variant.price.toDouble()}",
                 grams = variant.grams,
                 createdAt = now,
                 updatedAt = now
