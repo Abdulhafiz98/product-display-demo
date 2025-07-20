@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Product Management</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+</head>
+<body class="bg-light">
+<div class="container py-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Product List</h2>
+        <div class="d-flex gap-2">
+            <button class="btn btn-primary" hx-get="/products" hx-target="#product-container" hx-swap="innerHTML">
+                <i class="fas fa-sync-alt"></i> Load Products
+            </button>
+            <button class="btn btn-success"
+                    hx-get="/product-form"
+                    hx-target="#product-modal-container"
+                    hx-swap="innerHTML">
+                <i class="fas fa-plus-circle"></i> Add Product
+            </button>
+        </div>
+    </div>
+
+    <!-- Product Table -->
+    <div id="product-container" th:fragment="productTable">
+        <table class="table table-bordered table-hover bg-white shadow-sm">
+            <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Vendor</th>
+                <th>Type</th>
+                <th>Published</th>
+                <th>Variants</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="product : ${products}">
+                <td th:text="${product.id}"></td>
+                <td th:text="${product.title}"></td>
+                <td th:text="${product.vendor}"></td>
+                <td th:text="${product.productType}"></td>
+                <td th:text="${#temporals.format(product.publishedAt, 'yyyy-MM-dd HH:mm')}"></td>
+                <td>
+                    <table class="table table-sm mb-0">
+                        <thead>
+                        <tr class="table-secondary">
+                            <th>Title</th>
+                            <th>Options</th>
+                            <th>Price</th>
+                            <th>Taxable</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="v : ${product.variants}">
+                            <td th:text="${v.title}"></td>
+                            <td>
+                                <span th:text="${v.option1}"></span> /
+                                <span th:text="${v.option2}"></span> /
+                                <span th:text="${v.option3}"></span>
+                            </td>
+                            <td th:text="'$' + ${v.price}"></td>
+                            <td>
+                                <i class="fas fa-check-circle text-success" th:if="${v.taxable}"></i>
+                                <i class="fas fa-times-circle text-danger" th:if="${!v.taxable}"></i>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </td>
+                <td>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-warning"
+                                hx-get="/product/edit/[[${product.id}]]"
+                                hx-target="#modal-edit-content"
+                                hx-swap="innerHTML"
+                                data-bs-toggle="modal"
+                                data-bs-target="#editProductModal">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger"
+                                hx-post="/product/delete/[[${product.id}]]"
+                                hx-target="#product-container"
+                                hx-swap="innerHTML"
+                                hx-confirm="Are you sure?">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal Container -->
+    <div id="product-modal-container"></div>
+
+    <!-- Add/Edit Product Modal Fragment -->
+    <div th:fragment="productModal">
+        <div class="modal fade" id="productModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title" th:text="${product?.id != null ? 'Edit Product' : 'Add Product'}"></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <form th:action="${product?.id != null ? '/products/update/' + product.id : '/products/create'}"
+                              method="post"
+                              hx-post
+                              hx-target="#product-container"
+                              hx-swap="innerHTML"
+                              onsubmit="event.preventDefault(); bootstrap.Modal.getInstance(document.getElementById('productModal')).hide(); this.submit();">
+
+                            <div class="mb-3">
+                                <label class="form-label">Title</label>
+                                <input type="text" name="title" class="form-control" th:value="${product?.title}" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Vendor</label>
+                                <input type="text" name="vendor" class="form-control" th:value="${product?.vendor}" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Product Type</label>
+                                <input type="text" name="productType" class="form-control" th:value="${product?.productType}" required>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Auto Show Modal when loaded -->
+<script>
+    document.body.addEventListener('htmx:afterSwap', function (e) {
+        if (e.detail.target.id === 'product-modal-container') {
+            const modal = new bootstrap.Modal(document.getElementById('productModal'));
+            modal.show();
+        }
+    });
+</script>
+
+</body>
+</html>
