@@ -68,11 +68,11 @@ class ProductController(
 
     @PostMapping("/products/{id}/variants/create")
     fun createProductVariant(
-        @PathVariable("id") productId: String,
+        @PathVariable("id") productId: Long,
         @ModelAttribute variant: CreateVariantModel,
         model: Model
     ): String {
-        productService.creteVariant(productId.toLong(), variant)
+        productService.creteVariant(productId, variant)
         model.addAttribute("products", productService.getAllProducts())
         return index(model)
     }
