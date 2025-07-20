@@ -12,9 +12,6 @@ data class Product(
 ) {
     data class Variant(
         val title: String? = null,
-        val option1: String? = null,
-        val option2: String? = null,
-        val option3: String? = null,
         val taxable: Boolean? = null,
         val price: String? = null,
         val grams: Int? = null

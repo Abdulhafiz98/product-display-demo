@@ -87,9 +87,6 @@ class ProductRepository {
                        p.product_type,
                        v.id as variant_id,
                        v.title as variant_title,
-                       v.option1,
-                       v.option2,
-                       v.option3,
                        v.taxable,
                        v.price,
                        v.grams,
@@ -98,7 +95,7 @@ class ProductRepository {
                        p.updated_at
                 FROM product p
                 LEFT JOIN variant v ON p.id = v.product_id
-                WHERE p.id = :id
+                WHERE p.id = ?
                     """.trimIndent()
 
         val rows = mutableListOf<Map<String, Any?>>()
@@ -124,15 +121,15 @@ class ProductRepository {
 
     fun getProductDOById(id: Long): ProductDO? {
         val sql = """
-                SELECT p.id, 
-                       p.title, 
-                       p.vendor,  
-                       p.product_type,
-                       p.published_at,
-                       p.created_at,
-                       p.updated_at,
-                FROM product p
-                WHERE p.id = :id
+                SELECT id, 
+                       title, 
+                       vendor,  
+                       product_type,
+                       published_at,
+                       created_at,
+                       updated_at
+                FROM product
+                WHERE id = ?
                     """.trimIndent()
 
         val rows = mutableListOf<Map<String, Any?>>()
@@ -191,13 +188,13 @@ class ProductRepository {
 
         connection.use { it ->
             it.prepareStatement(updateProductSql).use { statement ->
-                statement.setLong(1, product.id)
-                statement.setString(2, product.title)
-                statement.setString(3, product.vendor)
-                statement.setString(4, product.productType)
-                statement.setTimestamp(5, Timestamp.valueOf(product.publishedAt))
-                statement.setTimestamp(6, Timestamp.valueOf(product.createdAt))
-                statement.setTimestamp(7, Timestamp.valueOf(product.updatedAt))
+                statement.setString(1, product.title)
+                statement.setString(2, product.vendor)
+                statement.setString(3, product.productType)
+                statement.setTimestamp(4, Timestamp.valueOf(product.publishedAt))
+                statement.setTimestamp(5, Timestamp.valueOf(product.createdAt))
+                statement.setTimestamp(6, Timestamp.valueOf(product.updatedAt))
+                statement.setLong(7, product.id)
                 statement.executeUpdate()
             }
         }
@@ -218,8 +215,8 @@ class ProductRepository {
 
         val insertVariantSql = """
         INSERT INTO variant (
-            id, product_id, title, option1, option2, option3, taxable, price, grams, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            id, product_id, title, taxable, price, grams, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     """.trimIndent()
 
         connection.use { it ->
@@ -227,14 +224,11 @@ class ProductRepository {
                 statement.setLong(1, variant.id)
                 statement.setLong(2, variant.productId)
                 statement.setString(3, variant.title)
-                statement.setString(4, variant.option1)
-                statement.setString(5, variant.option2)
-                statement.setString(6, variant.option3)
-                statement.setBoolean(7, variant.taxable ?: false)
-                statement.setString(8, variant.price)
-                statement.setInt(9, variant.grams ?: 0)
-                statement.setTimestamp(10, Timestamp.valueOf(variant.createdAt))
-                statement.setTimestamp(11, Timestamp.valueOf(variant.updatedAt))
+                statement.setBoolean(4, variant.taxable ?: false)
+                statement.setString(5, variant.price)
+                statement.setInt(6, variant.grams ?: 0)
+                statement.setTimestamp(7, Timestamp.valueOf(variant.createdAt))
+                statement.setTimestamp(8, Timestamp.valueOf(variant.updatedAt))
                 statement.executeUpdate()
             }
         }
@@ -258,9 +252,6 @@ class ProductRepository {
                         .map { row ->
                             Product.Variant(
                                 title = row["variant_title"] as? String,
-                                option1 = row["option1"] as? String,
-                                option2 = row["option2"] as? String,
-                                option3 = row["option3"] as? String,
                                 taxable = row["taxable"] as? Boolean,
                                 price = row["price"] as? String,
                                 grams = row["grams"] as? Int,

@@ -6,7 +6,6 @@ import com.abdullkhafiz.productdisplaydemo.service.ProductService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
-import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
@@ -22,23 +21,13 @@ class ProductController(
 
     @GetMapping("/")
     fun index(model: Model): String {
-        model.addAttribute("products", productService.getAllProducts())
         return "index"
     }
 
-    @PostMapping("/products/create")
-    fun createProduct(@ModelAttribute product: CreateProductModel): String {
-        productService.creteProduct(product)
-        return "redirect:/"
-    }
-
-    @PostMapping("/products/{id}/variants/create")
-    fun createProductVariant(
-        @PathVariable("id") productId: Long,
-        @ModelAttribute variant: CreateVariantModel
-    ): String {
-        productService.creteVariant(productId, variant)
-        return "redirect:/"
+    @GetMapping("/products")
+    fun getProducts(model: Model): String {
+        model.addAttribute("products", productService.getAllProducts())
+        return "index :: productContainer"
     }
 
     @GetMapping("/product-form")
@@ -47,22 +36,57 @@ class ProductController(
         return "index :: productModal"
     }
 
-    @GetMapping("/product/edit/{id}")
+    @GetMapping("/product-form/{id}")
     fun editProductForm(@PathVariable id: Long, model: Model): String {
         model.addAttribute("product", productService.getProductById(id))
         return "index :: productModal"
     }
 
-    @PostMapping("/products/update/{id}")
-    fun updateProduct(@PathVariable id: Long, @ModelAttribute product: CreateProductModel): String {
-        productService.updateProduct(id, product)
-        return "redirect:/"
+
+    @PostMapping("/products/create")
+    fun createProduct(@ModelAttribute product: CreateProductModel, model: Model): String {
+        productService.creteProduct(product)
+        model.addAttribute("products", productService.getAllProducts())
+        return index(model)
     }
 
-    @DeleteMapping("/products/delete/{id}")
+    @PostMapping("/products/update/{id}")
+    fun updateProduct(@PathVariable id: Long, @ModelAttribute product: CreateProductModel, model: Model): String {
+        productService.updateProduct(id, product)
+        model.addAttribute("products", productService.getAllProducts())
+        return index(model)
+    }
+
+    @GetMapping("/variant-form/{id}")
+    fun variantForm(
+        @PathVariable("id") productId: Long,
+        model: Model
+    ): String {
+        model.addAttribute("productId", productId)
+        return "index :: variantModal"
+    }
+
+    @PostMapping("/products/{id}/variants/create")
+    fun createProductVariant(
+        @PathVariable("id") productId: String,
+        @ModelAttribute variant: CreateVariantModel,
+        model: Model
+    ): String {
+        productService.creteVariant(productId.toLong(), variant)
+        model.addAttribute("products", productService.getAllProducts())
+        return index(model)
+    }
+
+    @GetMapping("/products/delete-confirm/{id}")
+    fun deleteForm(@PathVariable("id") productId: Long, model: Model): String {
+        model.addAttribute("productId", productId)
+        return "index :: deleteModal"
+    }
+
+    @PostMapping("/products/delete/{id}")
     fun deleteProduct(@PathVariable id: Long, model: Model): String {
         productService.deleteProduct(id)
         model.addAttribute("products", productService.getAllProducts())
-        return "index :: productTable"
+        return index(model)
     }
 }

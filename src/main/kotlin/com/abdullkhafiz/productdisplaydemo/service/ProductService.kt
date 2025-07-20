@@ -80,21 +80,18 @@ class ProductService(
     }
 
     fun creteVariant(productId: Long, variant: CreateVariantModel) {
-        val variantId = variant.id ?: idGenerator()
+        val variantId = idGenerator()
         val now = LocalDateTime.now()
         productRepository.saveVariant(
             VariantDO(
                 variantId,
                 productId,
-                variant.title,
-                variant.option1,
-                variant.option2,
-                variant.option3,
-                variant.taxable,
-                variant.price,
-                variant.grams,
-                now,
-                now
+                title = variant.title,
+                taxable = variant.taxable,
+                price = variant.price,
+                grams = variant.grams,
+                createdAt = now,
+                updatedAt = now
             )
         )
     }
