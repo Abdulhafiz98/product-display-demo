@@ -1,39 +1,47 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="">
 <head>
     <meta charset="UTF-8">
     <title>Product Management</title>
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://early.webawesome.com/webawesome@3.0.0-beta.3/dist/styles/webawesome.css" />
+    <link rel="stylesheet" href="https://early.webawesome.com/webawesome@3.0.0-beta.3/dist/styles/color/palettes/default.css" />
+    <script type="module" src="https://early.webawesome.com/webawesome@3.0.0-beta.3/dist/webawesome.loader.js"></script>
 
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
 
-    <!-- HTMX -->
-    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+    <script th:src="@{/js/scripts.js}" defer></script>
+    <script th:src="@{/js/htmx-fallback.js}"
+            defer></script>
+    <script src="https://unpkg.com/htmx.org@1.9.2" defer></script>
 </head>
-<body class="bg-light">
+<body>
 <div class="container py-5">
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="wa-split">
         <h2>Product List</h2>
-        <div class="d-flex gap-2">
-            <button class="btn btn-primary" hx-get="/products" hx-target="#product-container" hx-swap="innerHTML">
-                <i class="fas fa-sync-alt"></i> Load Products
-            </button>
-            <button class="btn btn-success"
+        <div class="wa-gap-2xs">
+            <wa-button
+                    variant="brand"
+                    hx-get="/products"
+                    hx-target="#product-container"
+                    hx-swap="innerHTML">
+                <wa-icon slot="start" name="refresh"></wa-icon>
+                Load Products
+            </wa-button>
+            <wa-button
+                    variant="success"
                     hx-get="/product-form"
                     hx-target="#product-modal-container"
                     hx-swap="innerHTML">
-                <i class="fas fa-plus-circle"></i> Add Product
-            </button>
+                <wa-icon slot="start" name="add"></wa-icon>
+                Add Product
+            </wa-button>
         </div>
     </div>
 
     <!-- Product Table -->
     <div id="product-container" th:fragment="productContainer">
-        <table class="table table-bordered table-hover bg-white shadow-sm">
+        <table class="table table-bordered table-hover bg-white shadow-sm compact">
             <thead class="table-dark">
             <tr>
                 <th>ID</th>
@@ -53,53 +61,53 @@
                 <td th:text="${product.productType}"></td>
                 <td th:text="${#temporals.format(product.publishedAt, 'yyyy-MM-dd HH:mm')}"></td>
                 <td>
-                    <table class="table table-sm mb-0">
+                    <table class="table compact">
                         <thead>
-                        <tr class="table-secondary">
+                        <tr class="table-dark">
                             <th>Options</th>
                             <th>Price</th>
                             <th>Grams</th>
                             <th>Taxable</th>
                         </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="table-secondary">
                         <tr th:each="v : ${product.variants}">
                             <td th:text="${v.title}"></td>
                             <td th:text="'$' + ${v.price}"></td>
                             <td th:text="${v.grams}"></td>
                             <td>
-                                <i class="fas fa-check-circle text-success" th:if="${v.taxable}"></i>
-                                <i class="fas fa-times-circle text-danger" th:if="${!v.taxable}"></i>
+                                <wa-icon class="text-success" name="check-circle" th:if="${v.taxable}"></wa-icon>
+                                <wa-icon class="text-danger" name="times-circle" th:if="${!v.taxable}"></wa-icon>
                             </td>
                         </tr>
                         <tr>
                             <td colspan="3"></td>
                             <td>
-                                <button class="btn btn-sm btn-outline-primary"
+                                <wa-button size="small" variant="success"
                                         th:hx-get="@{/variant-form/{id}(id=${product.id})}"
                                         hx-target="#variant-modal-container"
                                         hx-swap="innerHTML">
-                                    <i class="fas fa-plus-circle"></i> Add
-                                </button>
+                                    <wa-icon slot="start" name="add"></wa-icon>Add
+                                </wa-button>
                             </td>
                         </tr>
                         </tbody>
                     </table>
                 </td>
                 <td>
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-sm btn-warning"
+                    <div class="wa-gap-2xs">
+                        <wa-button variant="warning" size="small"
                                 th:hx-get="@{/product-form/{id}(id=${product.id})}"
                                 hx-target="#product-modal-container"
                                 hx-swap="innerHTML">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-sm btn-danger"
+                            <wa-icon name="edit"></wa-icon>
+                        </wa-button>
+                        <wa-button variant="danger" size="small"
                                 th:hx-get="@{/products/delete-confirm/{id}(id=${product.id})}"
                                 hx-target="#delete-modal-container"
                                 hx-swap="innerHTML">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                            <wa-icon name="trash"></wa-icon>
+                        </wa-button>
                     </div>
                 </td>
             </tr>
@@ -112,44 +120,41 @@
 
     <!-- Add/Edit Product Modal Fragment -->
     <div th:fragment="productModal">
-        <div class="modal fade" id="productModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
+        <div class="modal" id="productModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" th:text="${product?.id != null ? 'Edit Product' : 'Add Product'}"></h5>
+                    <button type="button" class="btn-close" onclick="closeModal('productModal')" aria-label="Close"></button>
+                </div>
 
-                    <div class="modal-header">
-                        <h5 class="modal-title" th:text="${product?.id != null ? 'Edit Product' : 'Add Product'}"></h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
+                <div class="modal-body">
+                    <form th:action="${product?.id != null ? '/products/update/' + product.id : '/products/create'}"
+                          method="post"
+                          hx-target="#product-container"
+                          hx-swap="innerHTML"
+                          onsubmit="event.preventDefault(); closeModal('productModal'); this.submit();">
 
-                    <div class="modal-body">
-                        <form th:action="${product?.id != null ? '/products/update/' + product.id : '/products/create'}"
-                              method="post"
-                              hx-post
-                              hx-target="#product-container"
-                              hx-swap="innerHTML"
-                              onsubmit="event.preventDefault(); bootstrap.Modal.getInstance(document.getElementById('productModal')).hide(); this.submit();">
+                        <div class="mb-3">
+                            <label class="form-label">Title</label>
+                            <input type="text" name="title" class="form-control" th:value="${product?.title}" required>
+                        </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Title</label>
-                                <input type="text" name="title" class="form-control" th:value="${product?.title}" required>
-                            </div>
+                        <div class="mb-3">
+                            <label class="form-label">Vendor</label>
+                            <input type="text" name="vendor" class="form-control" th:value="${product?.vendor}" required>
+                        </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Vendor</label>
-                                <input type="text" name="vendor" class="form-control" th:value="${product?.vendor}" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Product Type</label>
-                                <input type="text" name="productType" class="form-control" th:value="${product?.productType}" required>
-                            </div>
-                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                        <div class="mb-3">
+                            <label class="form-label">Product Type</label>
+                            <input type="text" name="productType" class="form-control" th:value="${product?.productType}" required>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" onclick="closeModal('productModal')">Cancel</button>
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Save Changes
+                                <i class="wa wa-save"></i> Save Changes
                             </button>
-                        </form>
-                    </div>
-
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -159,59 +164,56 @@
     <div id="variant-modal-container"></div>
 
     <div th:fragment="variantModal">
-        <div class="modal fade" id="variantModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
+        <div class="modal" id="variantModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Variant</h5>
+                    <button type="button" class="btn-close" onclick="closeModal('variantModal')"></button>
+                </div>
 
-                    <div class="modal-header">
-                        <h5 class="modal-title">Add Variant</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
+                <div class="modal-body">
+                    <form th:action="@{'/products/'+${productId}+'/variants/create'}"
+                          method="post"
+                          hx-target="#product-container"
+                          hx-swap="innerHTML"
+                          onsubmit="event.preventDefault(); closeModal('variantModal'); this.submit();">
 
-                    <div class="modal-body">
-                        <form th:action="@{'/products/'+${productId}+'/variants/create'}"
-                              method="post"
-                              hx-target="#product-container"
-                              hx-swap="innerHTML"
-                              onsubmit="event.preventDefault(); bootstrap.Modal.getInstance(document.getElementById('variantModal')).hide(); this.submit();">
+                        <input type="hidden" name="productId" th:value="${productId}" />
 
-                            <input type="hidden" name="productId" th:value="${productId}" />
+                        <div class="mb-3">
+                            <label class="form-label">Variant Title</label>
+                            <input type="text" name="title" class="form-control" required>
+                        </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Variant Title</label>
-                                <input type="text" name="title" class="form-control" required>
-                            </div>
+                        <div class="mb-3">
+                            <label class="form-label">Price</label>
+                            <input type="number" name="price" class="form-control" required>
+                        </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Price</label>
-                                <input type="number" name="price" class="form-control" required>
-                            </div>
+                        <div class="mb-3">
+                            <label class="form-label">Grams</label>
+                            <input type="number" name="grams" class="form-control" required>
+                        </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Grams</label>
-                                <input type="number" name="grams" class="form-control" required>
-                            </div>
+                        <div class="form-check mb-3">
+                            <input type="hidden" name="taxable" value="false" id="taxableHidden" />
+                            <input class="form-check-input" type="checkbox" value="true" id="taxableCheck">
+                            <label class="form-check-label" for="taxableCheck">Taxable</label>
+                        </div>
 
-                            <div class="form-check mb-3">
-                                <input type="hidden" name="taxable" value="false" id="taxableHidden" />
-                                <input class="form-check-input" type="checkbox" value="true" id="taxableCheck">
-                                <label class="form-check-label" for="taxableCheck">Taxable</label>
-                            </div>
+                        <script>
+                            document.getElementById('taxableCheck').addEventListener('change', function() {
+                                document.getElementById('taxableHidden').value = this.checked ? 'true' : 'false';
+                            });
+                        </script>
 
-                            <script>
-                                document.getElementById('taxableCheck').addEventListener('change', function() {
-                                    document.getElementById('taxableHidden').value = this.checked ? 'true' : 'false';
-                                });
-                            </script>
-
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
-                                <button type="submit" class="btn btn-success">
-                                    <i class="fas fa-plus"></i> Add Variant
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" onclick="closeModal('variantModal')">Cancel</button>
+                            <button type="submit" class="btn btn-success">
+                                <i class="wa wa-plus"></i> Add Variant
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -221,65 +223,31 @@
     <div id="delete-modal-container"></div>
 
     <div th:fragment="deleteModal">
-        <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
+        <div class="modal" id="deleteModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="btn-close" onclick="closeModal('deleteModal')" aria-label="Close"></button>
+                </div>
 
-                    <div class="modal-header">
-                        <h5 class="modal-title text-danger">Confirm Delete</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
+                <div class="modal-body">
+                    <p class="mb-0">Are you sure you want to delete this?</p>
+                </div>
 
-                    <div class="modal-body">
-                        <p class="mb-0">Are you sure you want to delete this?</p>
-                    </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('deleteModal')">Cancel</button>
 
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-
-                        <form th:action="@{'/products/delete/' + ${productId}}" method="post"
-                              hx-post
-                              hx-target="#product-container"
-                              hx-swap="innerHTML"
-                              onsubmit="event.preventDefault(); bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide(); this.submit();">
-                            <button type="submit" class="btn btn-danger">Agree</button>
-                        </form>
-                    </div>
-
+                    <form th:action="@{'/products/delete/' + ${productId}}" method="post"
+                          hx-target="#product-container"
+                          hx-swap="innerHTML"
+                          onsubmit="event.preventDefault(); closeModal('deleteModal'); this.submit();">
+                        <button type="submit" class="btn btn-danger">Agree</button>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 
 </div>
-
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-<script>
-    document.body.addEventListener('htmx:afterSwap', function (e) {
-        const targetId = e.detail.target.id;
-        if(targetId === 'product-modal-container') {
-            const modalEl = document.getElementById('productModal');
-            if (modalEl) {
-                const modal = new bootstrap.Modal(modalEl);
-                modal.show();
-            }
-        } else if (targetId === 'variant-modal-container') {
-            const modalEl = document.getElementById('variantModal');
-            if (modalEl) {
-                const modal = new bootstrap.Modal(modalEl);
-                modal.show();
-            }
-        } else if (targetId === 'delete-modal-container') {
-            const modalEl = document.getElementById('deleteModal');
-            if (modalEl) {
-                const modal = new bootstrap.Modal(modalEl);
-                modal.show();
-            }
-        }
-    });
-</script>
-
 </body>
 </html>
