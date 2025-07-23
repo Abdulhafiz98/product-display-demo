@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="">
+<html xmlns:th="http://www.thymeleaf.org" lang="" class="wa-theme-awesome wa-palette-bright wa-brand-blue">
 <head>
     <meta charset="UTF-8">
     <title>Product Management</title>
+
+    <link rel="stylesheet" href="https://early.webawesome.com/webawesome@3.0.0-beta.3/dist/styles/themes/awesome.css" />
 
     <link rel="stylesheet" href="https://early.webawesome.com/webawesome@3.0.0-beta.3/dist/styles/webawesome.css"/>
     <link rel="stylesheet"
@@ -178,16 +180,14 @@
                           onsubmit="closeModal('variantModal'); this.submit();">
                         <div class="wa-stack wa-gap-10xs">
                             <div class="wa-stack wa-gap-10xs">
-                                <input type="hidden" name="productId" th:value="${productId}"/>
                                 <wa-input label="Variant Title" type="text" name="title" required></wa-input>
                                 <wa-input label="Price" type="number" name="price" required></wa-input>
                                 <wa-input label="Grams" type="number" name="grams" required></wa-input>
-                                <input type="hidden" name="taxable" value="false"/>
-                                <wa-checkbox name="taxable" value="false">Taxable</wa-checkbox>
+                                <wa-checkbox name="taxable" value="true">Taxable</wa-checkbox>
                             </div>
                             <div class="wa-cluster">
                                 <wa-button variant="danger" onclick="closeModal('variantModal')">Cancel</wa-button>
-                                <wa-button variant="success">Submit</wa-button>
+                                <wa-button type="submit" variant="success">Submit</wa-button>
                             </div>
                         </div>
                     </form>
@@ -211,7 +211,8 @@
                 </div>
                 <div class="wa-cluster">
                     <wa-button variant="warning" onclick="closeModal('deleteModal')">Cancel</wa-button>
-                    <form th:action="@{'/products/delete/' + ${productId}}" method="post"
+                    <form th:action="@{'/products/delete/' + ${productId}}"
+                          method="post"
                           hx-target="#product-container"
                           hx-swap="innerHTML"
                           onsubmit="closeModal('deleteModal'); this.submit();">

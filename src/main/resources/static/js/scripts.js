@@ -1,4 +1,3 @@
-// scripts.js
 function showModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
