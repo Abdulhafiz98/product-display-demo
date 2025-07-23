@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <title>Product Management</title>
 
-    <link rel="stylesheet" href="https://early.webawesome.com/webawesome@3.0.0-beta.3/dist/styles/webawesome.css" />
-    <link rel="stylesheet" href="https://early.webawesome.com/webawesome@3.0.0-beta.3/dist/styles/color/palettes/default.css" />
+    <link rel="stylesheet" href="https://early.webawesome.com/webawesome@3.0.0-beta.3/dist/styles/webawesome.css"/>
+    <link rel="stylesheet"
+          href="https://early.webawesome.com/webawesome@3.0.0-beta.3/dist/styles/color/palettes/default.css"/>
     <script type="module" src="https://early.webawesome.com/webawesome@3.0.0-beta.3/dist/webawesome.loader.js"></script>
 
     <link rel="stylesheet" th:href="@{/css/styles.css}">
@@ -16,10 +17,10 @@
     <script src="https://unpkg.com/htmx.org@1.9.2" defer></script>
 </head>
 <body>
-<div class="container py-5">
+<div class="wa-stack wa-gap-10xs container py-5">
     <div class="wa-split">
-        <h2>Product List</h2>
-        <div class="wa-gap-2xs">
+        <h2 class="wa-heading-2xl">Product List</h2>
+        <div class="wa-cluster">
             <wa-button
                     variant="brand"
                     hx-get="/products"
@@ -76,18 +77,23 @@
                             <td th:text="'$' + ${v.price}"></td>
                             <td th:text="${v.grams}"></td>
                             <td>
-                                <wa-icon class="text-success" name="check-circle" th:if="${v.taxable}"></wa-icon>
-                                <wa-icon class="text-danger" name="times-circle" th:if="${!v.taxable}"></wa-icon>
+                                <div class="icon-green">
+                                    <wa-icon name="circle-check" th:if="${v.taxable}"></wa-icon>
+                                </div>
+                                <div class="icon-red">
+                                    <wa-icon name="circle-xmark" th:if="${!v.taxable}"></wa-icon>
+                                </div>
                             </td>
                         </tr>
                         <tr>
                             <td colspan="3"></td>
                             <td>
                                 <wa-button size="small" variant="success"
-                                        th:hx-get="@{/variant-form/{id}(id=${product.id})}"
-                                        hx-target="#variant-modal-container"
-                                        hx-swap="innerHTML">
-                                    <wa-icon slot="start" name="add"></wa-icon>Add
+                                           th:hx-get="@{/variant-form/{id}(id=${product.id})}"
+                                           hx-target="#variant-modal-container"
+                                           hx-swap="innerHTML">
+                                    <wa-icon slot="start" name="add"></wa-icon>
+                                    Add
                                 </wa-button>
                             </td>
                         </tr>
@@ -97,15 +103,15 @@
                 <td>
                     <div class="wa-gap-2xs">
                         <wa-button variant="warning" size="small"
-                                th:hx-get="@{/product-form/{id}(id=${product.id})}"
-                                hx-target="#product-modal-container"
-                                hx-swap="innerHTML">
+                                   th:hx-get="@{/product-form/{id}(id=${product.id})}"
+                                   hx-target="#product-modal-container"
+                                   hx-swap="innerHTML">
                             <wa-icon name="edit"></wa-icon>
                         </wa-button>
                         <wa-button variant="danger" size="small"
-                                th:hx-get="@{/products/delete-confirm/{id}(id=${product.id})}"
-                                hx-target="#delete-modal-container"
-                                hx-swap="innerHTML">
+                                   th:hx-get="@{/products/delete-confirm/{id}(id=${product.id})}"
+                                   hx-target="#delete-modal-container"
+                                   hx-swap="innerHTML">
                             <wa-icon name="trash"></wa-icon>
                         </wa-button>
                     </div>
@@ -120,11 +126,11 @@
 
     <!-- Add/Edit Product Modal Fragment -->
     <div th:fragment="productModal">
-        <div class="modal" id="productModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" th:text="${product?.id != null ? 'Edit Product' : 'Add Product'}"></h5>
-                    <button type="button" class="btn-close" onclick="closeModal('productModal')" aria-label="Close"></button>
+        <div class="modal fade" id="productModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-content wa-stack wa-gap-10xs">
+                <div class="wa-split">
+                    <h5 class="wa-heading-xl" th:text="${product?.id != null ? 'Edit Product' : 'Add Product'}"></h5>
+                    <wa-icon onclick="closeModal('productModal')" name="xmark" variant="solid"></wa-icon>
                 </div>
 
                 <div class="modal-body">
@@ -132,27 +138,20 @@
                           method="post"
                           hx-target="#product-container"
                           hx-swap="innerHTML"
-                          onsubmit="event.preventDefault(); closeModal('productModal'); this.submit();">
-
-                        <div class="mb-3">
-                            <label class="form-label">Title</label>
-                            <input type="text" name="title" class="form-control" th:value="${product?.title}" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Vendor</label>
-                            <input type="text" name="vendor" class="form-control" th:value="${product?.vendor}" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Product Type</label>
-                            <input type="text" name="productType" class="form-control" th:value="${product?.productType}" required>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-danger" onclick="closeModal('productModal')">Cancel</button>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="wa wa-save"></i> Save Changes
-                            </button>
+                          onsubmit="closeModal('productModal'); this.submit();">
+                        <div class="wa-stack wa-gap-10xs">
+                            <div class="wa-stack">
+                                <wa-input label="Title" type="text" name="title" class="form-control"
+                                          th:value="${product?.title}" required></wa-input>
+                                <wa-input label="Vendor" type="text" name="vendor" class="form-control"
+                                          th:value="${product?.vendor}" required></wa-input>
+                                <wa-input label="Product Type" type="text" name="productType" class="form-control"
+                                          th:value="${product?.productType}" required></wa-input>
+                            </div>
+                            <div class="wa-cluster">
+                                <wa-button variant="danger" onclick="closeModal('productModal')">Cancel</wa-button>
+                                <wa-button type="submit" variant="success">Save Changes</wa-button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -165,10 +164,10 @@
 
     <div th:fragment="variantModal">
         <div class="modal" id="variantModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Add Variant</h5>
-                    <button type="button" class="btn-close" onclick="closeModal('variantModal')"></button>
+            <div class="modal-content wa-stack wa-gap-10xs">
+                <div class="wa-split">
+                    <h5 class="wa-heading-xl">Add Variant</h5>
+                    <wa-icon onclick="closeModal('variantModal')" name="xmark" variant="solid"></wa-icon>
                 </div>
 
                 <div class="modal-body">
@@ -176,42 +175,20 @@
                           method="post"
                           hx-target="#product-container"
                           hx-swap="innerHTML"
-                          onsubmit="event.preventDefault(); closeModal('variantModal'); this.submit();">
-
-                        <input type="hidden" name="productId" th:value="${productId}" />
-
-                        <div class="mb-3">
-                            <label class="form-label">Variant Title</label>
-                            <input type="text" name="title" class="form-control" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Price</label>
-                            <input type="number" name="price" class="form-control" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Grams</label>
-                            <input type="number" name="grams" class="form-control" required>
-                        </div>
-
-                        <div class="form-check mb-3">
-                            <input type="hidden" name="taxable" value="false" id="taxableHidden" />
-                            <input class="form-check-input" type="checkbox" value="true" id="taxableCheck">
-                            <label class="form-check-label" for="taxableCheck">Taxable</label>
-                        </div>
-
-                        <script>
-                            document.getElementById('taxableCheck').addEventListener('change', function() {
-                                document.getElementById('taxableHidden').value = this.checked ? 'true' : 'false';
-                            });
-                        </script>
-
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-danger" onclick="closeModal('variantModal')">Cancel</button>
-                            <button type="submit" class="btn btn-success">
-                                <i class="wa wa-plus"></i> Add Variant
-                            </button>
+                          onsubmit="closeModal('variantModal'); this.submit();">
+                        <div class="wa-stack wa-gap-10xs">
+                            <div class="wa-stack wa-gap-10xs">
+                                <input type="hidden" name="productId" th:value="${productId}"/>
+                                <wa-input label="Variant Title" type="text" name="title" required></wa-input>
+                                <wa-input label="Price" type="number" name="price" required></wa-input>
+                                <wa-input label="Grams" type="number" name="grams" required></wa-input>
+                                <input type="hidden" name="taxable" value="false"/>
+                                <wa-checkbox name="taxable" value="false">Taxable</wa-checkbox>
+                            </div>
+                            <div class="wa-cluster">
+                                <wa-button variant="danger" onclick="closeModal('variantModal')">Cancel</wa-button>
+                                <wa-button variant="success">Submit</wa-button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -224,24 +201,21 @@
 
     <div th:fragment="deleteModal">
         <div class="modal" id="deleteModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Confirm Delete</h5>
-                    <button type="button" class="btn-close" onclick="closeModal('deleteModal')" aria-label="Close"></button>
+            <div class="modal-delete-content wa-stack wa-gap-10xs">
+                <div class="wa-split">
+                    <h5 class="wa-heading-l">Confirm Delete</h5>
+                    <wa-icon onclick="closeModal('deleteModal')" name="xmark" variant="solid"></wa-icon>
                 </div>
-
-                <div class="modal-body">
-                    <p class="mb-0">Are you sure you want to delete this?</p>
+                <div>
+                    <p class="wa-heading-xl">Are you sure you want to delete this?</p>
                 </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('deleteModal')">Cancel</button>
-
+                <div class="wa-cluster">
+                    <wa-button variant="warning" onclick="closeModal('deleteModal')">Cancel</wa-button>
                     <form th:action="@{'/products/delete/' + ${productId}}" method="post"
                           hx-target="#product-container"
                           hx-swap="innerHTML"
-                          onsubmit="event.preventDefault(); closeModal('deleteModal'); this.submit();">
-                        <button type="submit" class="btn btn-danger">Agree</button>
+                          onsubmit="closeModal('deleteModal'); this.submit();">
+                        <wa-button type="submit" variant="danger">Delete</wa-button>
                     </form>
                 </div>
             </div>
